@@ -90,7 +90,11 @@ module MCProvision
       end
 
       node.bootstrap if @config.settings["steps"]["puppet_bootstrap_stage"]
-      node.run_puppet if @config.settings["steps"]["puppet_final_run"]
+      begin
+        node.run_puppet if @config.settings["steps"]["puppet_final_run"]
+      rescue
+        raise if @config.settings["steps"]["puppet_final_run_is_critical"]
+      end
       node.daemonize_puppet if @config.settings["steps"]["puppet_daemon"]
       node.disable
 
